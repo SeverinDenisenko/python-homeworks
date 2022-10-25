@@ -1,5 +1,6 @@
 from pickle import dump, load
 from typing import List
+from math import isclose
 
 
 # 2.3
@@ -75,7 +76,14 @@ class Robot:
         """
         print("Start position: " + str(self.x_0) + ", " + str(self.y_0))
         print("Current position: " + str(self.x) + ", " + str(self.y))
-        print("Full distance: " + str(((self.x - self.x_0) ** 2 + (self.y - self.y_0) ** 2) ** 0.5))
+        print("Full distance: " + str(self.__dist__()))
+
+    def __dist__(self):
+        """
+        Calculates distance from origin
+        :return: float
+        """
+        return ((self.x - self.x_0) ** 2 + (self.y - self.y_0) ** 2) ** 0.5
 
     def save(self, filename):
         """
@@ -132,9 +140,14 @@ class Triangle:
                           Point.distance(self.c, self.a))
 
     def is_inside(self, p):
-        return self.area == (Triangle(self.a, self.b, p).area +
-                             Triangle(self.a, p, self.c).area +
-                             Triangle(p, self.b, self.c).area)
+        """
+        Checks if point inside this triangle
+        :param p: Point
+        :return: True or False
+        """
+        return isclose(self.area, (Triangle(self.a, self.b, p).area +
+                                   Triangle(self.a, p, self.c).area +
+                                   Triangle(p, self.b, self.c).area))
 
 
 class ColouredTriangle(Triangle):
