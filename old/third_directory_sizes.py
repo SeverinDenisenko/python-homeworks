@@ -18,7 +18,7 @@ def main():
     out = sorted(zip(sizes, files), reverse=True)
 
     for item in out:
-        print(f"{item[1]} \t {item[0]}")
+        print(f"{str(item[1]):50} \t {item[0]}")
 
 
 if __name__ == "__main__":
