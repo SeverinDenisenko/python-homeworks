@@ -1,72 +1,76 @@
-from multiprocessing import Pool
-from datetime import datetime, timedelta
-import time
+from multiprocessing import Pool, set_start_method
 
 
 def task(magic):
-    time.sleep(1)
-    # magic help please
+    s = 1
+    for i in range(len(magic)):
+        s *= ord(magic[i])
 
 
 def cal_task(magic):
-    time.sleep(0.000001)
+    pass
     # magic help please
 
 
 # 4.1
 def test():
+    from datetime import datetime, timedelta
+
     times = []
-    cal_times = []
     n = 16
+    passes = 500000
+
+    set_start_method("spawn")
+
+    Pool(1).map(task, "magic" * passes * 1)
 
     for i in range(1, n + 1):
+        # Find out how much takes to copy processes
+
         start_time = datetime.now()
 
         with Pool(i) as p:
-            p.map(cal_task, ["magic"] * i)
+            p.map(cal_task, "magic" * passes * i)
+
+        end_time = datetime.now()
+
+        dt_cal = end_time - start_time
+        t_cal = dt_cal / timedelta(seconds=1)
+
+        # Find out how much takes to run processes
+
+        start_time = datetime.now()
+
+        with Pool(i) as p:
+            p.map(task, "magic" * passes * i)
 
         end_time = datetime.now()
 
         dt = end_time - start_time
         t = dt / timedelta(seconds=1)
-        cal_times.append(t)
 
-    for i in range(1, n + 1):
-        start_time = datetime.now()
+        # Put in results
 
-        with Pool(i) as p:
-            p.map(task, ["magic"] * i)
-
-        end_time = datetime.now()
-
-        dt = end_time - start_time
-        t = dt / timedelta(seconds=1)
-        times.append(t)
+        times.append(t - t_cal)
 
         print(f"{i} done.")
-
-    for i in range(n):
-        times[i] -= cal_times[i]
 
     return times
 
 
 def main():
     data = test()
-    estimate1 = 0
-    estimate2 = 0
+    estimate = 0
 
-    for t in data:
-        if t < 1.08:
-            estimate1 += 1
+    for i in range(len(data)):
+        data[i] /= data[0]
 
-    for t in data:
-        if t < 1.1:
-            estimate2 += 1
-
-    print(f"Number of cores: {estimate2} - {estimate1}")
+        if data[i] < 0.7:
+            estimate += 1
 
     from matplotlib import pyplot as plt
+
+    print(f"Estimated number of cores: {estimate}")
 
     plt.plot(range(1, len(data) + 1), data)
     plt.show()
