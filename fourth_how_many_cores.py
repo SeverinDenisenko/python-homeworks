@@ -61,11 +61,12 @@ def test():
 def main():
     data = test()
     estimate = 0
+    very_magic_number = 0.7
 
     for i in range(len(data)):
         data[i] /= data[0]
 
-        if data[i] < 0.7:
+        if data[i] < very_magic_number:
             estimate += 1
 
     from matplotlib import pyplot as plt
