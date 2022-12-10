@@ -6,26 +6,35 @@ import math
 
 
 class Receiver:
-    def __init__(self, queue, sender):
+    def __init__(self, queue):
         self.queue = queue
-        self.sender = sender
 
     def start(self):
         Thread(target=self.__receiver__).start()
 
     def __receiver__(self):
+        senders = 0
+
         while True:
             data = self.queue.get()
+
+            if data == "begin":
+                senders += 1
+                continue
+
+            if data == "end":
+                senders -= 1
+                if senders == 0:
+                    break
+                continue
+
             print(math.sin(data))
-            if self.sender.is_ended:
-                break
 
 
 class Sender:
     def __init__(self, queue, n):
         self.queue = queue
         self.n = n
-        self.is_ended = False
 
     def start(self):
         Thread(target=self.__sender__).start()
@@ -36,19 +45,29 @@ class Sender:
         max_sleep_time = 2
         intervals = random.rand(self.n) * max_sleep_time
 
+        self.queue.put("begin")
+
         for i in range(self.n):
             sleep(intervals[i])
             self.queue.put(data[i])
 
-        self.is_ended = True
+        self.queue.put("end")
 
 
 def main():
     queue = Queue()
-    sender = Sender(queue, 3)
-    receiver = Receiver(queue, sender)
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
+    Sender(queue, 3).start()
 
-    sender.start()
+    receiver = Receiver(queue)
     receiver.start()
 
 
